@@ -111,19 +111,7 @@ uv run --locked ruff check .
 uv run --locked ruff format --check .
 ```
 
-本次临时工具位置可在 PowerShell 通过以下方式使用：
-
-```powershell
-& "$env:TEMP\rheolab-tool-env\Scripts\uv.exe" run --locked pytest -q
-```
-
-如需复用本次实际使用的解释器创建环境：
-
-```powershell
-& "$env:TEMP\rheolab-tool-env\Scripts\uv.exe" sync --locked --python "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
-```
-
-该解释器路径来自当前 Codex 运行环境，不作为项目对其他使用者的要求。
+工具和解释器的安装路径由本机环境决定，使用者按上述标准命令创建环境即可。
 项目声明 Python >=3.11，但本轮仅在上述 3.12 环境验证。
 Plotly 图形（包括数据范围限制和残差图）、Streamlit UI、许可证确认和发布
 仍属于后续任务；本轮不能视为整个 v0.1 已完成。
@@ -246,3 +234,32 @@ RMSE=0.596650 Pa·s、MAPE=4.460219%。数据、页面和说明明确标注为�
 
 实现依据：[uv 官方 GitHub Actions 指南](https://docs.astral.sh/uv/guides/integration/github/)
 及 [GitHub 工作流语法](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)。
+
+## 9. Windows 双击启动（2026-10-15）
+
+新增根目录 `启动RheoLab.cmd` 和 `scripts/start_rheolab.ps1`，并补充 README。
+当前电脑的桌面已建立 `RheoLab.lnk`，指向项目内的 CMD 启动入口。
+快捷方式只存在本机桌面，不放入 Git 仓库。
+
+- 启动器使用项目目录定位文件，不依赖启动时的工作目录或 Codex 临时 uv 路径。
+- 优先使用现有 `.venv`；环境不完整时尝试 PATH 或用户 `.local/bin` 中的 uv，
+  执行 `uv sync --locked --python 3.12`。没有 uv 时明确提示安装入口。
+- 使用项目路径生成的命名互斥锁，重复启动只打开已运行实例，不重复启动服务。
+- 默认尝试 8501，按顺序避让至 8510，不停止或复用不明来源的端口服务。
+- Streamlit 使用 headless 模式避开首次运行的邮箱询问；独立的后台任务等待
+  本地健康检查通过后打开浏览器。服务仍在用户的启动窗口内运行。
+- 启动失败保留提示；按 Ctrl+C 可停止服务。脚本以 UTF-8 BOM 保存，兼容
+  Windows PowerShell 5.1 的中文提示；无需修改系统执行策略或 PATH。
+
+实际验证：从项目外目录执行 CMD 入口成功；8501 已占用时使用 8502，健康
+检查返回 200，并确认默认浏览器自动打开 RheoLab 页面。重复启动前后的 Python
+进程集合相同（Windows 虚拟环境包含入口与实际解释器两个进程），未新增实例。
+在含中文和空格的临时目录验证缺少环境/uv 时的明确错误。验证 Ctrl+C 停止后
+启动器所属服务无残留，原有 8501 服务仍正常。桌面快捷方式的目标文件有效。
+
+现有 154 项测试、Ruff 和格式检查通过；PowerShell 语法检查通过。
+环境缺失时自动联网恢复依赖的分支尚未做完整安装验证；本轮验证了已安装环境
+的启动和环境缺失时的提示。仍不是独立 EXE，首次准备环境可能需要联网。
+
+实现依据：[Streamlit 启动说明](https://docs.streamlit.io/develop/api-reference/cli/run)
+和 [uv 锁文件与环境同步](https://docs.astral.sh/uv/concepts/projects/sync/)。

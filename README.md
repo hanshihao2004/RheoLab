@@ -5,6 +5,20 @@ Ostwald–de Waele 幂律模型拟合，以及交互式黏度图和残差图。
 
 ## 本地启动
 
+Windows 上可直接双击根目录的 **启动RheoLab.cmd**。启动器会检查运行环境，
+启动本地服务并自动打开默认浏览器；运行窗口需保持开启，按 Ctrl+C 或关闭
+该运行窗口可停止服务。已运行时再次双击会打开现有实例。
+
+默认尝试 8501 端口，被占用时依次尝试至 8510，不会停止其他占用端口的程序。
+实际地址以运行窗口显示的地址为准。
+
+现有 `.venv` 环境完整时不需要另外安装 uv。首次使用或环境缺失时，启动器
+会尝试调用已安装的 uv，按锁文件自动准备 Python 3.12 和依赖；该过程可能
+需要联网。如未安装 uv，会显示[安装说明](https://docs.astral.sh/uv/getting-started/installation/)。
+此启动器需要项目文件与运行环境，尚不是独立的 EXE 安装包。
+
+开发时也可以使用命令行：
+
 需要 Python 3.11 或更高版本及 uv；当前在 Windows / Python 3.12 上验证。
 
 ```powershell
@@ -13,11 +27,7 @@ uv run --locked streamlit run app.py --server.address 127.0.0.1
 ```
 
 打开终端显示的本地地址，默认是 `http://127.0.0.1:8501`。
-如本机 uv 尚未加入 PATH，本次开发环境可执行：
-
-```powershell
-& "$env:TEMP\rheolab-tool-env\Scripts\uv.exe" run --locked streamlit run app.py --server.address 127.0.0.1
-```
+如系统无法识别 `uv`，请按上述安装说明安装，并重新打开终端。
 
 上传 CSV 或选择“合成示例（非实验数据）”，检查预览后点击“拟合 Power-law”。
 更换、移除文件或切换数据来源会清除旧结果，需要再次点击拟合。

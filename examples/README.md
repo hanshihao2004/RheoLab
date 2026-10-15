@@ -38,12 +38,6 @@ uv sync --locked
 uv run --locked python examples/plot_demo.py
 ```
 
-本次临时 uv 工具也可以使用：
-
-```powershell
-& "$env:TEMP\rheolab-tool-env\Scripts\uv.exe" run --locked python examples/plot_demo.py
-```
-
 重新运行会覆盖该目录下的两个 `synthetic_power_law` 输出文件。
 
 ## 调用绘图模块
